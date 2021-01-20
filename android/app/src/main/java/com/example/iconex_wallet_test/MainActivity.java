@@ -13,30 +13,26 @@ import android.widget.Toast;
 import android.net.Uri;
 import android.content.Intent;
 
-
 public class MainActivity extends FlutterActivity {
   private static final String CHANNEL = "iconex";
   MethodChannel.Result myResult;
 
+  public void bind() {
+    Uri url = Uri.parse("iconex://bind");
+    startActivityForResult(new Intent(Intent.ACTION_VIEW, url), 1000);
+  }
 
   @Override
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
     super.configureFlutterEngine(flutterEngine);
-  
-    new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
-        .setMethodCallHandler(
-          (call, result) -> {
-            if (call.method.equals("getAddress")) {
-                myResult = result;
-                bind();
-            }           
-          }
-        );
-  }
 
-  public void bind() {
-    Uri url = Uri.parse("iconex://bind");
-    startActivityForResult(new Intent(Intent.ACTION_VIEW, url), 1000);
+    new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
+        .setMethodCallHandler((call, result) -> {
+          if (call.method.equals("getAddress")) {
+            myResult = result;
+            bind();
+          }
+        });
   }
 
   @Override
@@ -51,7 +47,7 @@ public class MainActivity extends FlutterActivity {
       } else {
         Uri uri = data.getData();
         JsonObject response = new Gson().fromJson(uri.toString(), JsonObject.class);
-        String result = response.get("result").getAsString()  ;
+        String result = response.get("result").getAsString();
         myResult.success(result);
       }
     }
